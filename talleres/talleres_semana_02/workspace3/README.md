@@ -22,6 +22,15 @@ cd talleres_semana_02/workspace3
 python -c "import numpy as np; np.save('humedad_finca.npy', np.random.rand(365, 100))"
 ```
 
+### ¿Qué es el archivo .npy?
+
+Es un archivo binario de NumPy que almacena matrices de forma eficiente.
+Para este taller, simulas 1 año de datos de humedad con:
+
+- `np.random.rand(365, 100)`: Genera números aleatorios [0,1]
+- `* 100`: Convierte a porcentajes [0,100]
+- `np.save()`: Guarda en disco (más rápido que CSV para arrays grandes)
+
 ### 2. Ejecuta el benchmark
 
 ```bash

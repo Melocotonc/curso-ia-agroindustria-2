@@ -108,12 +108,12 @@
 % =====================================================
 % Capítulo 1 (Intro): Puente desde Python básico a HPC/NumPy
 % =====================================================
-\section{Capítulo 1: De Python básico a NumPy (el puente conceptual)}
+\section{ De Python básico a NumPy (el puente conceptual)}
 
-Este capítulo es una guía corta para que cualquier estudiante, incluso si apenas está empezando, entienda el \textbf{por qué} y el \textbf{para qué} de lo que vamos a construir en esta semana: validación de datos, limpieza de CSV, medición de rendimiento y procesamiento matricial con NumPy.
+Este texto es una guía corta para que cualquier estudiante, incluso si apenas está empezando, entienda el \textbf{por qué} y el \textbf{para qué} de lo que vamos a construir en esta semana: validación de datos, limpieza de CSV, medición de rendimiento y procesamiento matricial con NumPy.
 
-\begin{conceptbox}{Meta del capítulo}
-Al finalizar este capítulo deberías poder leer el resto del manual sin sentir que ``aparecen cosas mágicas''. La idea es entender:
+\begin{conceptbox}{Metas}
+Al finalizar deberías poder leer el resto del manual sin sentir que ``aparecen cosas mágicas''. La idea es entender:
 \begin{itemize}
 \item Qué es un programa en Python y cómo se organiza.
 \item Cómo se toman decisiones (\texttt{if/elif/else}) y se repiten tareas (\texttt{for}).
@@ -157,7 +157,8 @@ hum = 55             # int
 sensor_id = "SENSOR_01"  # str
 alarma = hum < 40     # bool
 \end{lstlisting}
-
+\newpage
+% ======================================================
 \section{Verificar y convertir tipos de datos en Python}
 
 En programación científica es fundamental asegurarse de que cada variable tenga el \textbf{tipo de dato} correcto (entero, número real, texto, etc.), especialmente antes de hacer cálculos o comparaciones.
@@ -235,7 +236,8 @@ print(type(ph))          # <class 'float'>
 \end{lstlisting}
 
 Si se omite esta conversión, las comparaciones como \texttt{temperatura > 30} o \texttt{humedad < 40} pueden fallar o producir resultados incorrectos.
-
+\newpage
+% ======================================================
 \section{Control de flujo: decisiones y reglas}
 Las reglas agronómicas se expresan como condiciones:
 
@@ -275,7 +277,8 @@ row = {"id": "SENSOR_01", "temp": 24.2, "hum": 55}
 \end{lstlisting}
 
 \textbf{Puente al manual:} el validador fail-fast trabaja sobre diccionarios así.
-
+\newpage
+% ======================================================
 \section{Funciones: empaquetar lógica reutilizable}
 Cuando una regla se repite, se convierte en función:
 
@@ -317,7 +320,8 @@ with open("sensores.csv", "r", encoding="utf-8") as f:
 \end{lstlisting}
 
 \textbf{Puente al manual:} ese patrón es la base de la limpieza del CSV sucio y la escritura del CSV limpio.
-
+\newpage
+% ======================================================
 \section{Por qué NumPy: cuando el tamaño importa}
 Python es excelente para lógica, pero un \texttt{for} ejecuta iteración por iteración en el intérprete.
 NumPy permite operar con arreglos completos de números de forma eficiente (operaciones implementadas en bajo nivel).
@@ -349,7 +353,8 @@ acciones = np.where(humedad < 0.2, "R", ".")  # "R" regar, "." normal
 \end{lstlisting}
 
 \textbf{Puente al manual:} esto es el núcleo del “motor de decisión hídrica” sobre mapas.
-
+\newpage
+% ======================================================
 % =====================================================
 % Sección extra: Profundización en NumPy
 % =====================================================
@@ -412,7 +417,8 @@ primera_col = humedad[:, 0]           # 100 valores
 \begin{warningbox}{Error común}
 En NumPy, el orden es \texttt{[filas, columnas]}.
 \end{warningbox}
-
+\newpage
+% ======================================================
 \section{Vectorización con ufuncs: ``sin for''}
 Las operaciones element-wise (por elemento) se aplican a todo el array:
 \begin{lstlisting}[language=Python, caption={Ufuncs: operaciones vectorizadas}]
@@ -494,11 +500,12 @@ Crea \texttt{acciones} con 3 clases:
 \end{itemize}
 y calcula los porcentajes de cada clase usando máscaras.
 \end{agrobox}
-
+\newpage
+% ======================================================
 % =====================================================
 % Capítulo: Introducción esencial a Matplotlib
 % =====================================================
-\section{Capítulo: Visualización esencial con Matplotlib (desde NumPy)}
+\section{Visualización esencial con Matplotlib (desde NumPy)}
 
 La visualización es parte del flujo científico: permite validar datos, detectar outliers y comunicar resultados.
 Como ya estamos usando NumPy (\texttt{np}), el siguiente paso natural es graficar con Matplotlib a través de \texttt{matplotlib.pyplot}.
@@ -539,7 +546,7 @@ plt.show()                          # Muestra la gráfica
 
 El gráfico se puede apreciar en la figura \ref{fig:hum}
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.3]{humedad.png}
     \label{fig:hum}
@@ -563,7 +570,7 @@ plt.xlabel("Temperatura (C)")
 plt.ylabel("Humedad (%)")
 plt.show()
 \end{lstlisting}
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.3]{scater.png}
     \caption{Diagrama de dispersión, generada con numpy}
@@ -585,7 +592,7 @@ plt.show()
 \end{lstlisting}
 
 Se puede apreciar el mapa de calor en la figura \ref{fig:calor}
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.3]{calor.png}
     \caption{Mapa de calor con numpy}
@@ -633,7 +640,7 @@ Construye una figura con 4 subgráficos:
 \end{itemize}
 Guárdala como \texttt{reports/diagnostico.png}.
 \end{agrobox}
-
+\newpage
 % =====================================================
 \section*{Prefacio: de scripts a sistemas que escalan}
 Vamos a profesionalizar el código: validar datos, medir rendimiento y usar NumPy para operar por bloques.
@@ -652,7 +659,7 @@ Al terminar, debes tener:
 \newpage
 
 % =====================================================
-\section{Capítulo II: Programación defensiva (Fail Fast)}
+\section{Programación defensiva (Fail Fast)}
 
 \subsection{Por qué esto es ingeniería}
 Un sensor puede fallar. Un archivo puede venir mal. Un dato puede ser imposible.
@@ -762,7 +769,7 @@ Modifica el validador para aceptar \texttt{hum} como string numérico (por ejemp
 \newpage
 
 % =====================================================
-\section{Capítulo III: CSV sucio \texorpdfstring{\(\rightarrow\)}{->} CSV limpio (sin pandas)}
+\section{CSV sucio \texorpdfstring{\(\rightarrow\)}{->} CSV limpio (sin pandas)}
 \subsection{Por qué sin pandas}
 En esta semana, el objetivo es entender el pipeline y las validaciones sin ``magia''.
 
@@ -927,7 +934,7 @@ Extiende \texttt{parse\_row()} para registrar también un error cuando la fecha 
 \newpage
 
 % =====================================================
-\section{Capítulo IV: HPC con NumPy — benchmark (loop vs vectorización)}
+\section{HPC con NumPy — benchmark (loop vs vectorización)}
 
 \subsection{Por qué medir}
 Si no mides, solo estás adivinando.
@@ -996,9 +1003,284 @@ Ejecuta el benchmark 3 veces. Anota los 3 speedups y reporta el promedio en tu P
 \end{agrobox}
 
 \newpage
-
 % =====================================================
-\section{Capítulo IV: Lógica espacial con matrices (máscaras + np.where)}
+\section{Trabajar con Archivos .npy: El Formato Binario de NumPy}
+
+Cuando trabajas con datos numéricos de sensores agrícolas (miles o millones de mediciones), el formato CSV puede volverse ineficiente. NumPy ofrece un formato binario optimizado: \texttt{.npy}.
+
+\subsection{¿Qué es un archivo .npy?}
+
+Un archivo \texttt{.npy} es el formato nativo de NumPy para almacenar arrays en disco de forma binaria. A diferencia de CSV (texto plano), \texttt{.npy} guarda los datos en el formato exacto que NumPy usa en memoria, lo que resulta en:
+
+\begin{itemize}
+    \item \textbf{Velocidad}: Carga 10-50x más rápido que CSV.
+    \item \textbf{Tamaño}: Archivos más pequeños (sin necesidad de convertir números a texto).
+    \item \textbf{Precisión}: Mantiene la precisión numérica exacta (float64, int32, etc.).
+    \item \textbf{Metadatos}: Guarda automáticamente el shape y dtype del array.
+\end{itemize}
+
+\subsection{Comparación: CSV vs .npy}
+
+\begin{center}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Característica} & \textbf{CSV} & \textbf{.npy} \\
+\midrule
+Formato & Texto plano & Binario \\
+Tamaño (1M valores) & $\sim$10 MB & $\sim$4 MB \\
+Tiempo de carga & $\sim$2 segundos & $\sim$0.05 segundos \\
+Velocidad relativa & 1x & \textbf{40x más rápido} \\
+Legible en Excel & Sí & No \\
+Uso típico & Compartir datos & Procesamiento científico \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Guardar y cargar arrays}
+
+\subsubsection{Guardar datos en .npy}
+
+\begin{lstlisting}[language=Python, caption={Guardar datos de sensor en formato .npy}]
+import numpy as np
+
+# Ejemplo 1: Guardar datos simulados
+humedad = np.random.rand(365, 100) * 100  # 1 año, 100 zonas
+np.save('humedad_finca.npy', humedad)
+
+# Ejemplo 2: Guardar datos reales de un CSV procesado
+datos_sensor = []
+with open('sensor_2025.csv', 'r') as f:
+    reader = csv.DictReader(f)
+    for fila in reader:
+        datos_sensor.append(float(fila['humedad']))
+
+# Convertir a array y guardar
+datos_np = np.array(datos_sensor)
+np.save('humedad_real_2025.npy', datos_np)
+\end{lstlisting}
+
+\subsubsection{Cargar datos desde .npy}
+
+\begin{lstlisting}[language=Python, caption={Cargar y verificar datos guardados}]
+import numpy as np
+
+# Cargar el array
+humedad = np.load('humedad_finca.npy')
+
+# Verificar metadatos
+print(f"Shape: {humedad.shape}")      # Dimensiones
+print(f"Dtype: {humedad.dtype}")      # Tipo de dato
+print(f"Tamaño: {humedad.size:,}")    # Total de elementos
+
+# Ejemplo de salida:
+# Shape: (365, 100)
+# Dtype: float64
+# Tamaño: 36,500
+\end{lstlisting}
+
+El archivo se carga en milisegundos, sin necesidad de parsear texto ni convertir tipos.
+
+\subsection{Caso de uso: Sensor agrícola con 1 año de datos}
+
+Imagina un sensor IoT que mide humedad del suelo cada 5 minutos durante un año completo:
+
+\begin{itemize}
+    \item Frecuencia: 12 lecturas/hora × 24 horas × 365 días = \textbf{105,120 mediciones}.
+    \item CSV: Archivo de $\sim$2.5 MB, carga en $\sim$1.2 segundos.
+    \item NPY: Archivo de $\sim$820 KB, carga en $\sim$0.03 segundos.
+\end{itemize}
+
+Si tu pipeline procesa estos datos 100 veces al día (análisis, validaciones, visualizaciones), ahorras \textbf{2 minutos diarios} solo en tiempo de lectura.
+
+\subsection{Comando rápido: Generar dataset de prueba}
+
+Para los talleres, puedes generar datasets simulados directamente desde la terminal:
+
+\begin{lstlisting}[language=bash]
+# Generar matriz 365x100 con valores [0,100]
+python -c "import numpy as np; np.save('humedad_finca.npy', np.random.rand(365, 100) * 100)"
+\end{lstlisting}
+
+Desglose del comando:
+\begin{itemize}
+    \item \texttt{python -c "..."}: Ejecuta código Python en una sola línea.
+    \item \texttt{np.random.rand(365, 100)}: Crea matriz 365×100 con valores aleatorios [0,1].
+    \item \texttt{* 100}: Escala a rango [0,100] (porcentajes).
+    \item \texttt{np.save(...)}: Guarda en formato binario .npy.
+\end{itemize}
+
+\subsection{Convertir .npy y .npz de vuelta a CSV}
+
+Una ventaja del formato .npy es que siempre puedes convertirlo de vuelta a CSV cuando necesites compartir los datos o abrirlos en Excel. NumPy incluye la función \texttt{np.savetxt()} para esta tarea.
+
+\subsubsection{Conversión básica con np.savetxt()}
+
+\begin{lstlisting}[language=Python, caption={Convertir .npy a CSV}]
+import numpy as np
+
+# Cargar el archivo .npy
+humedad = np.load('humedad_finca.npy')
+
+# Guardar como CSV
+np.savetxt('humedad_finca.csv', humedad, delimiter=',', fmt='%.2f')
+\end{lstlisting}
+
+\textbf{Parámetros importantes:}
+\begin{itemize}
+    \item \texttt{delimiter=','}: Define el separador de columnas (coma para CSV).
+    \item \texttt{fmt='\%.2f'}: Formato numérico con 2 decimales. Ajusta según precisión necesaria.
+\end{itemize}
+
+\subsubsection{Agregar nombres de columnas (header)}
+
+Para que el CSV sea más legible, puedes agregar un encabezado:
+
+\begin{lstlisting}[language=Python, caption={CSV con nombres de columnas}]
+import numpy as np
+
+humedad = np.load('humedad_finca.npy')
+
+# Crear header con nombres personalizados
+header = ','.join([f'zona_{i+1}' for i in range(humedad.shape[1])])
+
+np.savetxt('humedad_finca.csv',
+           humedad,
+           delimiter=',',
+           fmt='%.2f',
+           header=header,
+           comments='')  # Evita el simbolo # en el header
+\end{lstlisting}
+
+El CSV resultante tendrá la primera fila con: \texttt{zona\_1,zona\_2,zona\_3,...}
+
+\subsubsection{Convertir archivos .npz (múltiples arrays)}
+
+Si guardaste varios arrays en un archivo \texttt{.npz}, puedes extraerlos y convertir cada uno:
+
+\begin{lstlisting}[language=Python, caption={Convertir .npz a múltiples CSV}]
+import numpy as np
+
+# Cargar el archivo .npz
+datos = np.load('datos_finca.npz')
+
+# Guardar cada array por separado
+np.savetxt('humedad.csv', datos['humedad'], delimiter=',', fmt='%.2f')
+np.savetxt('temperatura.csv', datos['temperatura'], delimiter=',', fmt='%.2f')
+\end{lstlisting}
+
+O combinarlos en un solo CSV con múltiples columnas:
+
+\begin{lstlisting}[language=Python, caption={Combinar arrays en un solo CSV}]
+import numpy as np
+
+datos = np.load('datos_finca.npz')
+
+# Combinar columnas horizontalmente
+combinado = np.column_stack([datos['humedad'], datos['temperatura']])
+
+np.savetxt('datos_completos.csv',
+           combinado,
+           delimiter=',',
+           fmt='%.2f',
+           header='humedad,temperatura',
+           comments='')
+\end{lstlisting}
+
+\subsubsection{Script reutilizable de conversión}
+
+Para facilitar la conversión frecuente, puedes crear un script genérico:
+
+\begin{lstlisting}[language=Python, caption={Conversor .npy a CSV reutilizable}]
+"""
+Convertir archivos .npy a CSV para compartir o visualizar
+"""
+import numpy as np
+import os
+
+def npy_to_csv(npy_path, csv_path, decimales=2):
+    """
+    Convierte un archivo .npy a CSV
+
+    Args:
+        npy_path: Ruta del archivo .npy
+        csv_path: Ruta de salida .csv
+        decimales: Numero de decimales a guardar
+    """
+    datos = np.load(npy_path)
+
+    # Formato segun decimales
+    fmt = f'%.{decimales}f'
+
+    np.savetxt(csv_path, datos, delimiter=',', fmt=fmt)
+
+    print(f"OK: Convertido {npy_path} -> {csv_path}")
+    print(f"  Shape: {datos.shape}")
+    print(f"  Tamano CSV: {os.path.getsize(csv_path) / 1024:.1f} KB")
+
+# Uso
+if __name__ == "__main__":
+    npy_to_csv('humedad_finca.npy', 'humedad_finca.csv', decimales=1)
+\end{lstlisting}
+
+\begin{agrobox}{Flujo de trabajo típico en proyectos agrícolas}
+\begin{enumerate}
+    \item \textbf{Recolección}: Sensores IoT envían datos cada hora (guardados en CSV por el sistema).
+    \item \textbf{Procesamiento}: Conviertes CSV a .npy para análisis rápido con NumPy.
+    \item \textbf{Análisis}: Todo el pipeline científico trabaja con .npy (rápido).
+    \item \textbf{Entrega}: Conviertes resultados finales a CSV para compartir con agrónomos.
+\end{enumerate}
+\end{agrobox}
+
+\textbf{Regla práctica}: Usa .npy internamente en tu código, y exporta a CSV solo cuando necesites compartir o visualizar en herramientas externas.
+
+\subsection{Bonus: Guardar múltiples arrays en un solo archivo}
+
+NumPy también ofrece \texttt{.npz} (comprimido) para guardar varios arrays relacionados:
+
+\begin{lstlisting}[language=Python, caption={Guardar múltiples variables en .npz}]
+import numpy as np
+
+humedad = np.random.rand(365, 100)
+temperatura = np.random.rand(365, 100)
+timestamps = np.arange(365)
+
+# Guardar todo junto
+np.savez('datos_finca.npz',
+         humedad=humedad,
+         temperatura=temperatura,
+         dias=timestamps)
+
+# Cargar
+datos = np.load('datos_finca.npz')
+print(datos['humedad'].shape)
+print(datos['temperatura'].shape)
+\end{lstlisting}
+
+Esto es ideal para datasets complejos donde múltiples sensores están relacionados temporalmente.
+
+\subsection{Cuándo usar cada formato}
+
+\begin{agrobox}{Regla práctica}
+\begin{itemize}
+    \item \textbf{Usa CSV} cuando necesites:
+    \begin{itemize}
+        \item Abrir los datos en Excel o Google Sheets.
+        \item Compartir con personas sin Python.
+        \item Datos pequeños ($<$10,000 filas).
+    \end{itemize}
+    \item \textbf{Usa .npy} cuando necesites:
+    \begin{itemize}
+        \item Procesar datos repetidamente en Python.
+        \item Trabajar con arrays grandes ($>$100,000 valores).
+        \item Máxima velocidad y precisión numérica.
+    \end{itemize}
+\end{itemize}
+\end{agrobox}
+
+
+\newpage
+% =====================================================
+\section{Lógica espacial con matrices (máscaras + np.where)}
 
 Las máscaras booleanas permiten seleccionar celdas sin usar \texttt{if} por celda.
 
