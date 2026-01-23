@@ -5,21 +5,9 @@ TALLER 02: Análisis de Datos de Sensores IoT
 OBJETIVO:
 Procesar 1440 lecturas (24 horas) de 5 sensores agrícolas distribuidos en una finca.
 Calcular estadísticas, detectar periodos críticos y exportar resultados.
-
-DATASET:
-sensores_24h.csv contiene:
-- timestamp: fecha y hora de la lectura (2026-01-13 00:00:00)
-- sensor_id: identificador del sensor (S001-S005)
-- zona: ubicación (Norte, Sur, Este, Oeste, Centro)
-- temperatura_c: temperatura en °C
-- humedad_pct: porcentaje de humedad
-- luz_lux: nivel de luz en lux (0 = noche, >5000 = día)
-
-CADA SENSOR TOMA UNA LECTURA CADA 5 MINUTOS (288 lecturas en 24h)
-TOTAL: 5 sensores × 288 lecturas = 1440 registros
-
-TAREAS A COMPLETAR:
 """
+
+import csv  # Importamos csv al inicio para que esté disponible globalmente
 
 # ============================================================================
 # TAREA 1: Completar función agrupar_por_sensor
@@ -28,51 +16,19 @@ TAREAS A COMPLETAR:
 def agrupar_por_sensor(lecturas):
     """
     Agrupa todas las lecturas por sensor_id.
-
-    Args:
-        lecturas (list): Lista de diccionarios con datos del CSV
-
-    Returns:
-        dict: Diccionario donde cada clave es un sensor_id y 
-              cada valor es una lista de todas sus lecturas
-
-    Ejemplo de estructura de retorno:
-    {
-        'S001': [lectura1, lectura2, lectura3, ...],
-        'S002': [lectura1, lectura2, ...]
-    }
-
-    Instrucciones:
-    1. Crea un diccionario vacío llamado 'grupos'
-    2. Recorre cada lectura en la lista 'lecturas'
-    3. Obtén el sensor_id de la lectura
-    4. Si ese sensor_id no está en el diccionario, créalo con una lista vacía
-    5. Agrega la lectura completa a la lista del sensor correspondiente
-    6. Retorna el diccionario 'grupos'
     """
-    # TODO: Crea el diccionario vacío
     grupos = {}
 
-
-    # TODO: Recorre cada lectura
     for lectura in lecturas:
-
-
-        # TODO: Obtén el sensor_id de la lectura actual
         sensor_id = lectura['sensor_id']
 
-
-        # TODO: Verifica si este sensor_id ya existe en grupos
-        # Si no existe, inicialízalo con una lista vacía
+        # Si el sensor no existe en el diccionario, creamos su lista
         if sensor_id not in grupos:
             grupos[sensor_id] = []
 
-
-        # TODO: Agrega la lectura completa a la lista del sensor
+        # Agregamos la lectura completa a la lista del sensor correspondiente
         grupos[sensor_id].append(lectura)
 
-
-    # TODO: Retorna el diccionario
     return grupos
 
 
@@ -83,66 +39,26 @@ def agrupar_por_sensor(lecturas):
 def calcular_estadisticas(lecturas_sensor):
     """
     Calcula estadísticas básicas de un conjunto de lecturas de un sensor.
-
-    Args:
-        lecturas_sensor (list): Lista de lecturas de un solo sensor
-
-    Returns:
-        dict: Diccionario con estadísticas calculadas
-
-    Estructura de retorno:
-    {
-        'total_lecturas': int,
-        'temp_promedio': float,
-        'temp_maxima': float,
-        'temp_minima': float,
-        'humedad_promedio': float,
-        'horas_luz': int  # Cuántas lecturas con luz_lux > 5000
-    }
-
-    Instrucciones:
-    1. Extrae todas las temperaturas en una lista
-    2. Extrae todas las humedades en una lista
-    3. Cuenta cuántas lecturas tienen luz_lux > 5000
-    4. Calcula promedios usando sum() y len()
-    5. Usa max() y min() para temperatura
-    6. Retorna un diccionario con todas las estadísticas
-
-    Nota: Recuerda convertir los valores a float donde sea necesario
     """
-    # TODO: Extrae todas las temperaturas
-    temperaturas = [float(lectura['temperatura_c']) for lectura in lecturas_sensor]
+    # 1 y 2. Extraemos listas convirtiendo a float para poder calcular
+    temps = [float(x['temperatura_c']) for x in lecturas_sensor]
+    humedades = [float(x['humedad_pct']) for x in lecturas_sensor]
 
+    # 3. Cuenta cuántas lecturas tienen luz_lux > 5000
+    # Nota: Convertimos a float porque a veces el CSV trae '5000.0'
+    conteo_luz = sum(1 for x in lecturas_sensor if float(x['luz_lux']) > 5000)
 
-    # TODO: Extrae todas las humedades
-    # Pista: humedades = [float(lectura['humedad_pct']) for lectura in lecturas_sensor]
+    cantidad = len(lecturas_sensor)
 
-
-    # TODO: Cuenta lecturas con luz solar (luz_lux > 5000)
-    # Pista: horas_luz = sum(1 for lectura in lecturas_sensor if float(lectura['luz_lux']) > 5000)
-
-
-    # TODO: Calcula estadísticas de temperatura
-    # Pista: temp_promedio = sum(temperaturas) / len(temperaturas)
-    # Pista: temp_maxima = max(temperaturas)
-    # Pista: temp_minima = min(temperaturas)
-
-
-    # TODO: Calcula promedio de humedad
-    # Pista: humedad_promedio = sum(humedades) / len(humedades)
-
-
-    # TODO: Retorna el diccionario con todos los valores
-    # Pista: return {
-    #     'total_lecturas': len(lecturas_sensor),
-    #     'temp_promedio': temp_promedio,
-    #     'temp_maxima': temp_maxima,
-    #     'temp_minima': temp_minima,
-    #     'humedad_promedio': humedad_promedio,
-    #     'horas_luz': horas_luz
-    # }
-
-    pass  # Elimina este pass
+    # 4, 5 y 6. Cálculos y retorno
+    return {
+        'total_lecturas': cantidad,
+        'temp_promedio': sum(temps) / cantidad if cantidad > 0 else 0,
+        'temp_maxima': max(temps) if cantidad > 0 else 0,
+        'temp_minima': min(temps) if cantidad > 0 else 0,
+        'humedad_promedio': sum(humedades) / cantidad if cantidad > 0 else 0,
+        'horas_luz': conteo_luz  # Retornamos el conteo crudo (lecturas)
+    }
 
 
 # ============================================================================
@@ -152,64 +68,29 @@ def calcular_estadisticas(lecturas_sensor):
 def detectar_periodos_criticos(lecturas_sensor, sensor_id):
     """
     Identifica periodos donde la temperatura supera 30°C por más de 1 hora.
-
-    Args:
-        lecturas_sensor (list): Lecturas de un sensor
-        sensor_id (str): ID del sensor (para mensajes)
-
-    Returns:
-        list: Lista de strings con alertas encontradas
-
-    Instrucciones:
-    1. Crea una lista vacía 'alertas'
-    2. Inicializa un contador de lecturas críticas en 0
-    3. Recorre cada lectura
-    4. Si temperatura_c > 30, incrementa el contador
-    5. Si temperatura_c <= 30, verifica si el contador >= 12 (1 hora)
-       - Si es así, agrega una alerta a la lista
-       - Resetea el contador a 0
-    6. Al final del bucle, verifica una última vez el contador
-    7. Retorna la lista de alertas
-
-    Formato de alerta sugerido:
-    f"[{sensor_id}] Temperatura crítica sostenida por {horas} horas"
+    Nota: 1 hora = 12 lecturas (ya que son cada 5 minutos)
     """
-    # TODO: Crea lista de alertas y contador
-    # Pista: alertas = []
-    # Pista: contador_critico = 0
+    alertas = []
+    contador_critico = 0
 
+    for lectura in lecturas_sensor:
+        temp = float(lectura['temperatura_c'])
 
-    # TODO: Recorre cada lectura
-    # Pista: for lectura in lecturas_sensor:
+        if temp > 30:
+            contador_critico += 1
+        else:
+            # Si se rompe la racha, verificamos si duró más de 1 hora (12 lecturas)
+            if contador_critico >= 12:
+                horas = (contador_critico * 5) / 60
+                alertas.append(f"[{sensor_id}] Temperatura crítica sostenida por {horas:.1f} horas")
+            contador_critico = 0 # Reseteamos contador
 
+    # Verificación final por si el periodo crítico termina justo al final del archivo
+    if contador_critico >= 12:
+        horas = (contador_critico * 5) / 60
+        alertas.append(f"[{sensor_id}] Temperatura crítica sostenida por {horas:.1f} horas")
 
-        # TODO: Obtén la temperatura como float
-        # Pista: temp = float(lectura['temperatura_c'])
-
-
-        # TODO: Si temp > 30, incrementa el contador
-        # Pista: if temp > 30:
-        #            contador_critico += 1
-
-
-        # TODO: Si temp <= 30, verifica si hubo periodo crítico
-        # Pista: else:
-        #            if contador_critico >= 12:  # 12 lecturas = 1 hora
-        #                horas = contador_critico / 12
-        #                alertas.append(f"[{sensor_id}] Temperatura crítica sostenida por {horas:.1f} horas")
-        #            contador_critico = 0
-
-
-    # TODO: Verifica el contador una última vez (por si termina en periodo crítico)
-    # Pista: if contador_critico >= 12:
-    #            horas = contador_critico / 12
-    #            alertas.append(f"[{sensor_id}] Temperatura crítica sostenida por {horas:.1f} horas")
-
-
-    # TODO: Retorna la lista de alertas
-    # Pista: return alertas
-
-    pass  # Elimina este pass
+    return alertas
 
 
 # ============================================================================
@@ -219,74 +100,36 @@ def detectar_periodos_criticos(lecturas_sensor, sensor_id):
 def exportar_resumen(estadisticas_por_sensor, nombre_archivo='resumen_sensores.csv'):
     """
     Exporta las estadísticas calculadas a un archivo CSV.
-
-    Args:
-        estadisticas_por_sensor (dict): Diccionario con sensor_id como clave
-                                        y estadísticas como valor
-        nombre_archivo (str): Nombre del archivo de salida
-
-    Instrucciones:
-    1. Importa csv
-    2. Define las columnas del CSV
-    3. Abre el archivo en modo escritura con encoding utf-8
-    4. Crea un csv.DictWriter con las columnas definidas
-    5. Escribe el encabezado con writeheader()
-    6. Recorre estadisticas_por_sensor y escribe cada fila con writerow()
-    7. Imprime mensaje de confirmación
-
-    Nota: Cada valor del diccionario debe tener la clave 'zona' además 
-    de las estadísticas
     """
-    # TODO: Importa csv
-    # Pista: import csv
+    columnas = [
+        'sensor_id', 'zona', 'total_lecturas', 'temp_promedio',
+        'temp_maxima', 'temp_minima', 'humedad_promedio', 'horas_luz'
+    ]
 
+    try:
+        # 'newline=""' es importante en Windows para evitar líneas en blanco extra
+        with open(nombre_archivo, 'w', encoding='utf-8', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=columnas)
 
-    # TODO: Define las columnas
-    # Pista: columnas = ['sensor_id', 'zona', 'total_lecturas', 'temp_promedio',
-    #                    'temp_maxima', 'temp_minima', 'humedad_promedio', 'horas_luz']
+            writer.writeheader()
 
+            # Escribimos las filas. .values() nos da la lista de diccionarios internos
+            writer.writerows(estadisticas_por_sensor.values())
 
-    # TODO: Abre el archivo en modo escritura
-    # Pista: with open(nombre_archivo, 'w', newline='', encoding='utf-8') as f:
+        print(f"  ✓ Archivo '{nombre_archivo}' generado exitosamente.")
 
-
-        # TODO: Crea el DictWriter
-        # Pista: writer = csv.DictWriter(f, fieldnames=columnas)
-
-
-        # TODO: Escribe el encabezado
-        # Pista: writer.writeheader()
-
-
-        # TODO: Recorre y escribe cada fila
-        # Pista: for sensor_id, stats in estadisticas_por_sensor.items():
-        #            writer.writerow(stats)
-
-
-    # TODO: Imprime mensaje de confirmación
-    # Pista: print(f"  ✓ Resumen exportado a {nombre_archivo}")
-
-    pass  # Elimina este pass
+    except IOError as e:
+        print(f"  Error al escribir el archivo: {e}")
 
 
 # ============================================================================
-# FUNCIÓN PRINCIPAL (YA IMPLEMENTADA - NO MODIFICAR)
+# FUNCIÓN PRINCIPAL
 # ============================================================================
 
 def main():
     """
     Función principal que orquesta todo el análisis.
-
-    Flujo del programa:
-    1. Leer sensores_24h.csv
-    2. Agrupar lecturas por sensor
-    3. Calcular estadísticas de cada sensor
-    4. Detectar periodos críticos
-    5. Exportar resumen a CSV
-    6. Imprimir reporte en consola
     """
-    import csv
-
     print("="*70)
     print("ANÁLISIS DE SENSORES IoT - 24 HORAS")
     print("="*70)
@@ -295,10 +138,14 @@ def main():
     print("\n[1/5] Leyendo datos...")
     lecturas = []
 
-    with open('sensores_24h.csv', 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for fila in reader:
-            lecturas.append(fila)
+    try:
+        with open('sensores_24h.csv', 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for fila in reader:
+                lecturas.append(fila)
+    except FileNotFoundError:
+        print("Error: No se encuentra el archivo 'sensores_24h.csv'. Asegúrate de estar en la carpeta correcta.")
+        return
 
     print(f"  ✓ {len(lecturas)} lecturas cargadas")
 
@@ -348,7 +195,8 @@ def main():
         print(f"  Lecturas: {stats['total_lecturas']}")
         print(f"  Temperatura: {stats['temp_promedio']:.1f}°C (min: {stats['temp_minima']:.1f}°C, max: {stats['temp_maxima']:.1f}°C)")
         print(f"  Humedad promedio: {stats['humedad_promedio']:.1f}%")
-        print(f"  Horas con luz solar: {stats['horas_luz'] / 12:.1f}h")  # Convertir lecturas a horas
+        # Aquí dividimos por 12 porque cada lectura son 5 minutos (60/5 = 12 lecturas por hora)
+        print(f"  Horas con luz solar: {stats['horas_luz'] / 12:.1f}h")
 
     print("\n" + "="*70)
     print("✓ Análisis completado - Revisa resumen_sensores.csv")

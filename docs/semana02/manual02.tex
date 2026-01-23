@@ -1364,6 +1364,207 @@ Registra 2 configuraciones y compáralas en tu PDF.
 \newpage
 
 % =====================================================
+
+\section*{Reto Final Integrador (Semana 2)}
+
+\begin{agrobox}{Artefactos mínimos}
+Debes dejar estos archivos en el repositorio:
+\begin{itemize}
+\item \texttt{data/raw/sensores\_sucio.csv}
+\item \texttt{data/processed/sensores\_limpio.csv}
+\item \texttt{reports/reporte\_limpieza.txt}
+\item \texttt{reports/decision\_hidrica.txt} (resumen del lote)
+\item \texttt{report/main.pdf}
+\end{itemize}
+\end{agrobox}
+
+\begin{conceptbox}{Checklist Git}
+\begin{itemize}
+\item Mínimo 3 commits claros.
+\item Los scripts se pueden ejecutar en orden sin errores.
+\item El PDF existe y resume resultados.
+\end{itemize}
+\end{conceptbox}
+
+% =====================================================
+\newpage
+\section{Fundamentos Algorítmicos para Series Temporales}
+
+Para desarrollar el taller de análisis de sensores IoT, es necesario dominar cuatro patrones fundamentales de manipulación de datos en Python estándar. A continuación, se describen las estrategias recomendadas para abordar cada fase del procesamiento.
+
+\subsection{Patrón de Agrupación (Group By)}
+Los datos de sensores suelen llegar en formato "plano" (una lista de filas donde los IDs de los sensores se repiten). Para analizar cada sensor individualmente, debemos transformar esta lista plana en una estructura jerárquica: un diccionario de listas.
+
+La lógica consiste en iterar sobre cada lectura y decidir dinámicamente:
+\begin{itemize}
+    \item Si el ID del sensor \textbf{no existe} en nuestro diccionario, creamos una entrada con una lista vacía.
+    \item Independientemente de lo anterior, agregamos la lectura actual a la lista de ese ID.
+\end{itemize}
+
+\begin{lstlisting}[caption={Pseudocódigo para agrupar datos}]
+datos_agrupados = {}
+
+for fila in datos_crudos:
+    clave = fila['id']
+
+    # Inicializacion perezosa (Lazy Initialization)
+    if clave not in datos_agrupados:
+        datos_agrupados[clave] = []
+
+    datos_agrupados[clave].append(fila)
+\end{lstlisting}
+
+\subsection{Limpieza y Conversión de Tipos (Casting)}
+El módulo \texttt{csv} de Python lee todos los datos como cadenas de texto (\texttt{str}). Es un error común intentar realizar operaciones matemáticas (suma, promedio, comparaciones) sin convertir previamente los datos.
+
+La forma más eficiente ("Pythonic") de extraer y convertir una columna completa de datos es utilizando \textit{List Comprehensions}:
+
+\begin{lstlisting}[caption={Extracción y conversión eficiente}]
+# Incorrecto (generará TypeError):
+# promedio = sum(lecturas) / len(lecturas)
+
+# Correcto:
+valores_float = [float(x['temperatura']) for x in lista_lecturas]
+promedio = sum(valores_float) / len(valores_float)
+\end{lstlisting}
+
+\subsection{Lógica de Estado para Eventos Temporales}
+Detectar un "pico" de temperatura es trivial (un simple \texttt{if}). Sin embargo, detectar un evento sostenido (ej. "temperatura alta por más de 1 hora") requiere memoria. Como procesamos las lecturas en orden cronológico, necesitamos una variable de estado o "contador de racha".
+
+El algoritmo funciona como una máquina de estados simple:
+\begin{enumerate}
+    \item Si la condición se cumple (ej. $T > 30$), incrementamos el contador.
+    \item Si la condición \textbf{no} se cumple, el evento se rompió: reiniciamos el contador a cero.
+    \item Verificamos si el contador alcanzó el umbral temporal deseado (ej. si cada lectura es de 5 min, 1 hora equivale a un contador de 12).
+\end{enumerate}
+
+\begin{lstlisting}[caption={Algoritmo de detección de rachas}]
+contador = 0
+umbral_lecturas = 12  # Equivalente a 1 hora
+
+for lectura in historial:
+    if lectura > 30:
+        contador += 1
+    else:
+        # La racha se rompio, verificar si fue critica antes de reiniciar
+        if contador >= umbral_lecturas:
+            registrar_alerta()
+        contador = 0 # Reset
+\end{lstlisting}
+
+\subsection{Persistencia de Resultados}
+Finalmente, para exportar estructuras complejas (como diccionarios) a un archivo CSV, utilizamos la clase \texttt{csv.DictWriter}. Es crucial definir previamente los nombres de las columnas (\texttt{fieldnames}) y asegurarse de escribir el encabezado antes de volcar los datos.
+
+\begin{lstlisting}[caption={Escritura de diccionarios a CSV}]
+columnas = ['id', 'promedio', 'maximo']
+
+with open('resumen.csv', 'w') as f:
+    writer = csv.DictWriter(f, fieldnames=columnas)
+    writer.writeheader()
+    # writerows espera una lista de diccionarios
+    writer.writerows(lista_de_resultados)
+\end{lstlisting}
+
+% ======================================================
+\newpage
+
+\section{Caso de Estudio Integrador: El Monitor de Voltaje}
+
+Para aterrizar los conceptos anteriores, analicemos un problema simplificado que simula la estructura del taller real.
+
+\subsection{El Problema}
+Supongamos que recibimos datos crudos de baterías de drones. Necesitamos:
+\begin{enumerate}
+    \item Agrupar las lecturas por \texttt{id\_dron}.
+    \item Calcular el voltaje promedio.
+    \item Detectar si el voltaje cae por debajo de 10V durante \textbf{3 lecturas consecutivas} (indicador de falla inminente).
+\end{enumerate}
+
+\subsection{Solución Completa Comentada}
+A continuación, se presenta un script que integra los cuatro patrones fundamentales explicados anteriormente. Observe cómo los datos fluyen desde la lista cruda hasta el reporte final.
+
+\begin{lstlisting}[caption={Integración de conceptos: Análisis de Baterías (Detallado)}, label={lst:baterias}]
+import csv # Necesario para leer/escribir archivos CSV (aunque aqui simulamos)
+
+# 1. DATOS SIMULADOS: Imaginemos que esto es lo que leimos del archivo CSV
+# Notese que los valores numericos vienen como cadenas de texto ('12.5')
+datos_crudos = [
+    {'id': 'D01', 'voltaje': '12.5'}, {'id': 'D02', 'voltaje': '11.0'},
+    {'id': 'D01', 'voltaje': '9.0'},  {'id': 'D01', 'voltaje': '8.5'},
+    {'id': 'D01', 'voltaje': '9.5'},  {'id': 'D02', 'voltaje': '10.8'}
+]
+
+def main():
+    # --- PASO 1: AGROUPACION (De lista plana a diccionario organizado) ---
+    grupos = {} # Diccionario vacio donde guardaremos { 'ID': [lista_de_filas] }
+
+    for lectura in datos_crudos:       # Recorremos cada fila del CSV original
+        d_id = lectura['id']           # Extraemos el ID para usarlo como clave
+
+        if d_id not in grupos:         # Si es la primera vez que vemos este ID...
+            grupos[d_id] = []          # ...inicializamos su lista vacia
+
+        grupos[d_id].append(lectura)   # Agregamos la fila actual a la lista de ese ID
+
+    reporte_final = [] # Aqui acumularemos los resultados procesados
+
+    # --- PASO 2: PROCESAMIENTO (Iterar por cada grupo/Dron individualmente) ---
+    # .items() nos da la clave (d_id) y el valor (lista_lecturas) al mismo tiempo
+    for d_id, lista_lecturas in grupos.items():
+
+        # --- PASO 3: CASTING (Limpieza de datos) ---
+        # Usamos List Comprehension para crear una lista limpia solo con numeros float
+        # Esto nos permite hacer calculos matematicos despues
+        voltajes = [float(x['voltaje']) for x in lista_lecturas]
+
+        # Calculo estadistico: suma total dividida por cantidad de elementos
+        promedio = sum(voltajes) / len(voltajes)
+
+        # --- PASO 4: LOGICA DE ESTADO (Detectar eventos en el tiempo) ---
+        falla_detectada = False  # Bandera (flag) que inicia asumiento que todo esta bien
+        contador_bajo = 0        # Variable de estado: cuenta lecturas seguidas problematicas
+
+        for v in voltajes:       # Recorremos cronologicamente los voltajes de ESTE dron
+            if v < 10.0:         # ¿El voltaje es bajo?
+                contador_bajo += 1  # Si, aumentamos la racha
+            else:
+                contador_bajo = 0   # No, el voltaje es bueno. La racha se rompe (reset)
+
+            # Verificamos si la racha alcanzo el limite critico (3 veces seguidas)
+            if contador_bajo >= 3:
+                falla_detectada = True  # Activamos la bandera de alerta
+                break  # Opcional: Salimos del bucle porque ya confirmamos el fallo
+
+        # Empaquetamos los resultados de este dron en un diccionario limpio
+        reporte_final.append({
+            'id': d_id,
+            'voltaje_promedio': round(promedio, 2), # Redondeamos a 2 decimales
+            'estado': 'CRITICO' if falla_detectada else 'OK' # Operador ternario para texto
+        })
+
+    # --- PASO 5: EXPORTACION (Mostrar resultados) ---
+    print("Reporte Generado:")
+    for fila in reporte_final:
+        print(fila) # En el taller, aqui usarian csv.DictWriter
+
+if __name__ == '__main__':
+    main()
+\end{lstlisting}
+
+\subsection{Análisis del Flujo}
+Si ejecutamos el código anterior, para el dron \texttt{D01} la secuencia de voltajes es: $[12.5, 9.0, 8.5, 9.5]$.
+\begin{itemize}
+    \item $12.5$ (Contador = 0)
+    \item $9.0$ (Contador = 1)
+    \item $8.5$ (Contador = 2)
+    \item $9.5$ (Contador = 3) $\rightarrow$ \textbf{¡Alerta Activada!}
+\end{itemize}
+
+Este mismo esquema mental es el que utilizará para el Taller 02, sustituyendo los voltajes por \textit{temperatura} y ajustando el umbral de tiempo (que en su caso serán 12 lecturas equivalentes a 1 hora).
+
+% ===============================================================
+\newpage
+
 \section{Introducción a LaTeX: Documentos Profesionales en Ingeniería}
 
 A partir de esta semana, entregarás tus reportes en \textbf{LaTeX} en lugar de editores visuales como Word o Google Docs. ¿Por qué? Porque LaTeX es el estándar en publicaciones científicas, ingeniería y documentación técnica.
@@ -1461,28 +1662,5 @@ Esto genera \texttt{reporte.pdf} junto con archivos auxiliares (\texttt{.aux}, \
 
 En las próximas semanas aprenderás a incluir tablas de resultados, ecuaciones de modelos y fragmentos de código Python en tus reportes LaTeX.
 
-\newpage
-
-% =====================================================
-\section*{Reto Final Integrador (Semana 2)}
-
-\begin{agrobox}{Artefactos mínimos}
-Debes dejar estos archivos en el repositorio:
-\begin{itemize}
-\item \texttt{data/raw/sensores\_sucio.csv}
-\item \texttt{data/processed/sensores\_limpio.csv}
-\item \texttt{reports/reporte\_limpieza.txt}
-\item \texttt{reports/decision\_hidrica.txt} (resumen del lote)
-\item \texttt{report/main.pdf}
-\end{itemize}
-\end{agrobox}
-
-\begin{conceptbox}{Checklist Git}
-\begin{itemize}
-\item Mínimo 3 commits claros.
-\item Los scripts se pueden ejecutar en orden sin errores.
-\item El PDF existe y resume resultados.
-\end{itemize}
-\end{conceptbox}
 
 \end{document}
